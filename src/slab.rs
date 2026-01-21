@@ -55,4 +55,32 @@ impl Slab {
         self.free_count = self.free_count - 1;
         return Some(object_return);
     }
+
+    /// liberer un objet
+    /// 
+    /// # Safety
+    /// ptr doit venir de ce slab
+    pub unsafe fn ddallocate(&mut self, ptr: *mut u8) {
+        let ptr_object = ptr as *mut *mut u8;
+        *ptr_object = self.freelist;
+
+        self.freelist = ptr;
+        self.free_count = self.free_count + 1;
+    }
+
+    pub fn is_full(&self) -> bool {
+        if self.free_count==0{
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    pub fn is_empty(&self) -> bool {
+        if self.free_count == self.capacity {
+            return true;
+        } else { 
+            return false;
+        }
+    }
 }
