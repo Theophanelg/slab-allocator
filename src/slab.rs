@@ -38,5 +38,21 @@ impl Slab {
         }
     }
 
-    
+    pub fn allocate(&mut self) -> Option<*mut u8> {
+        if self.freelist.is_null() {
+            return none;
+        }
+        let object_return = self.freelist;
+
+        /// # Safety 
+        /// toujours pointé dans vers un objet valide dans le slab 
+        unsafe {
+            let ptr_object = object_return as *mut *mut u8;
+            let nxt_free = *ptr_object;
+            self.freelist = nxt_free;
+        }
+
+        self.free_count = self.free_count - 1;
+        return Some(object_return);
+    }
 }
