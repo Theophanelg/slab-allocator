@@ -7,10 +7,12 @@ Slab allocator theory + basic implementation and code integration of the previou
 - [Linux SLUB Allocator Internals and Debugging (Oracle)](https://blogs.oracle.com/linux/linux-slub-allocator-internals-and-debugging-1) - Deep-dive sur le SLUB allocator moderne
 
 ## Structure
+
+```bash
 src /
 |--- lib.rs // point d'entrée no std
 |--- slab.rs // structure slab avec freelist
-
+```
 
 ## Building
 
