@@ -26,3 +26,19 @@ fn test_slab_allocate_and_free(){
     }
 }
 
+#[test]
+fn test_slab_full() {
+    let mut buffer = vec![0u8; 256];
+    let ptr = buffer.as_mut_ptr();
+    unsafe{
+        let mut slab = slab_allocator::Slab::new(ptr, 64, 256);
+        let _obj1 = slab.allocate();
+        let _obj2 = slab.allocate();
+        let _obj3 = slab.allocate();
+        let _obj4 = slab.allocate();
+
+        assert_eq!(slab.is_full(), true);
+        let obj5 = slab.allocate();
+        assert_eq!(obj5.is_none(), true);
+    }
+}
