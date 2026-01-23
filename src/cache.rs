@@ -1,4 +1,4 @@
-use crate::Slab;
+use crate::{Slab, slab};
 use alloc::vec::Vec;
 
 pub struct SlabCache{
@@ -40,8 +40,36 @@ impl SlabCache {
         None
     }
     
-    pub unsafe fn deallocate(&mut self, _ptr: *mut u8) {
 
+    /// Libérer un object
+    /// # Safety
+    /// ptr doit provenir de ce cache
+    pub unsafe fn deallocate(&mut self, ptr: *mut u8) {
+        let mut i = 0;
+        while i < self.slabs_full.len() {
+            let slab = &mut self.slabs_full[i];
+            unsafe{
+                slab.deallocate(ptr);
+            }
+            let slab = self.slabs_full.remove(i);
+            self.slabs_partial.push(slab);
+            return;
+        }
+
+        let mut i = 0;
+        while i < self.slabs_partial.len() {
+        let slab = &mut self.slabs_partial[i];
+        
+        unsafe {
+            slab.deallocate(ptr);
+        }
+
+        if slab.is_empty() {
+            let slab = self.slabs_partial.remove(i);
+            self.slabs_free.push(slab);
+        }
+        return;
+        }
     }
 
 
