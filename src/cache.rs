@@ -21,6 +21,22 @@ impl SlabCache {
     }
 
     pub fn allocate(&mut self) -> Option<*mut u8> {
+        if let Some(slab) = self.slabs_partial.first_mut() {
+            if let Some(obj) = slab.allocate(){
+                if slab.is_full() {
+                    let slab = self.slabs_partial.remove(0);
+                    self.slabs_full.push(slab);
+                }
+                return Some(obj);
+            }
+        }
+
+        if let Some(mut slab) = self.slabs_free.pop(){
+            let obj = slab.allocate();
+            self.slabs_partial.push(slab);
+            return obj;
+        }
+
         None
     }
     
