@@ -37,7 +37,20 @@ impl SlabCache {
             return obj;
         }
 
-        None
+        use alloc::alloc::{alloc,Layout};
+        let layout = Layout::from_size_align(self.slab_size, 8).unwrap();
+        let memory = unsafe {alloc(layout)};
+
+        if memory.is_null(){
+            return None;
+        }
+
+        let mut new_slab = unsafe {
+            Slab::new(memory,self.object_size, self.slab_size)
+        };
+        let obj = new_slab.allocate();
+        self.slabs_partial.push(new_slab);
+        obj
     }
     
 
