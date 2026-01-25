@@ -1,4 +1,4 @@
-use crate::{Slab, slab};
+use crate::{Slab};
 use alloc::vec::Vec;
 
 pub struct SlabCache{
