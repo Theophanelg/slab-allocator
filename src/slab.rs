@@ -1,7 +1,5 @@
 /// Bloc de mémoire contenant les objets de taille fixe 
 pub struct Slab {
-    memory: *mut u8, // Début du slab
-    object_size: usize, // taille des objets
     capacity: usize, // nombre total des objets
     freelist: *mut u8, // premier objet libre
     free_count: usize,  // nombre object libre
@@ -27,13 +25,11 @@ impl Slab {
                     let ptr_object = current_object as *mut *mut u8;
                     *ptr_object = core::ptr::null_mut();
                 }
-                i = i + 1;
+                i += 1;
             }
         }
         Slab {
-            memory: memory,
-            object_size: object_size,
-            capacity: capacity,
+            capacity,
             freelist: memory,
             free_count: capacity,
         }
@@ -52,8 +48,8 @@ impl Slab {
             self.freelist = nxt_free;
         }
 
-        self.free_count = self.free_count - 1;
-        return Some(object_return);
+        self.free_count -= 1;
+        Some(object_return)
     }
 
     /// liberer un objet
@@ -67,22 +63,14 @@ impl Slab {
             *ptr_object = self.freelist;
             self.freelist = ptr;
         }
-        self.free_count = self.free_count + 1;
+        self.free_count += 1;
     }
 
     pub fn is_full(&self) -> bool {
-        if self.free_count==0{
-            return true;
-        } else {
-            return false;
-        }
+        self.free_count == 0
     }
 
     pub fn is_empty(&self) -> bool {
-        if self.free_count == self.capacity {
-            return true;
-        } else { 
-            return false;
-        }
+        self.free_count == self.capacity
     }
 }

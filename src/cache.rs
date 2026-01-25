@@ -21,15 +21,14 @@ impl SlabCache {
     }
 
     pub fn allocate(&mut self) -> Option<*mut u8> {
-        if let Some(slab) = self.slabs_partial.first_mut() {
-            if let Some(obj) = slab.allocate(){
+        if let Some(slab) = self.slabs_partial.first_mut()
+            && let Some(obj) = slab.allocate(){
                 if slab.is_full() {
                     let slab = self.slabs_partial.remove(0);
                     self.slabs_full.push(slab);
                 }
                 return Some(obj);
             }
-        }
 
         if let Some(mut slab) = self.slabs_free.pop(){
             let obj = slab.allocate();
@@ -60,30 +59,28 @@ impl SlabCache {
     /// # Safety
     /// ptr doit provenir de ce cache
     pub unsafe fn deallocate(&mut self, ptr: *mut u8) {
-        let mut i = 0;
-        while i < self.slabs_full.len() {
-            let slab = &mut self.slabs_full[i];
+        let _i = 0;
+        if let Some(slab) = self.slabs_full.first_mut() {
+            // SAFETY: ptr provient de ce cache
             unsafe{
                 slab.deallocate(ptr);
             }
-            let slab = self.slabs_full.remove(i);
+            let slab = self.slabs_full.remove(0);
             self.slabs_partial.push(slab);
             return;
         }
 
-        let mut i = 0;
-        while i < self.slabs_partial.len() {
-        let slab = &mut self.slabs_partial[i];
+        if let Some(slab) = self.slabs_partial.first_mut() {
         
+        // SAFETY: ptr provient de ce cache 
         unsafe {
             slab.deallocate(ptr);
         }
 
         if slab.is_empty() {
-            let slab = self.slabs_partial.remove(i);
+            let slab = self.slabs_partial.remove(0);
             self.slabs_free.push(slab);
         }
-        return;
         }
     }
 
