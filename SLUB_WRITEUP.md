@@ -30,8 +30,6 @@ Linux possède trois implémentations :
 
 On se concentre donc sur le slub car c'est celui utilisé aujourd'hui.
 
---- 
-
 ## 2. L'architecture du SLUB
 
 ### Vue d'ensemble
@@ -75,9 +73,7 @@ Pour être rapide, SLUB garde un cache par CPU, chaque CPU a son propre SLAB act
 **Les avantages**
 - Pas besoin de look (chaque CPU va travailler sur son cache)
 - Allocation très rapide
-- Meilleur utilisattion du cache
-
---- 
+- Meilleur utilisattion du cache 
 
 ## 3. l'allocation et la libération
 
@@ -105,8 +101,6 @@ Quand on libère un objet :
 2. Ajouter l'objet au début de la freelist
 3. Si le slab était full -> le déplacer dans partial
 4. Si le slab devient empty -> possibilité de le libérer
-
----
 
 ## 4. Exploiatation du SLUB
 
@@ -138,8 +132,6 @@ Le slab spraying consiste à :
 - Le but est de remplir un stab avec nos données
 - Couplé à un UAF, ça augmente les chances que l'objet libéré soit réutilisé avec des valeurs choisies par l'attanquant.
 
----
-
 ## 5. Mécanismes de défense
 
 Le noyau a ajouté plusieurs proctections pour rendre ces attaques plus difficiles.
@@ -153,4 +145,21 @@ Le noyau a ajouté plusieurs proctections pour rendre ces attaques plus difficil
 - a la ré-allocation, si cette valeur a changé, ca peut détecter un UAF
 
 ### Freelist randomization
-- au lieu d'avoir une freelist dans un ordre
+- au lieu d'avoir une freelist dans un ordre prévisible, l'ordre des objets libres est random
+- cela va donc compliquer l'attaque ou on s'aide de l'ordre des allocations pour placer un objet a un endroit en particulier
+
+### KASAN
+
+C'est un outil de début qui surveille les accès mémoire du noyau
+- Permet de détecter
+    - Use-after-free
+    - Out-of-bounds
+    - Double-free
+
+C'est utile pour trouver les bug mais prend enormément de performence
+
+## 6. Résumé
+
+- Le slub réutilise les objets pour éviter des fragmentations et pour gagner en performance.
+- Les objets qui sont libres sont chainées via un freepointer.
+- Le noyau ajoute des protection pour compliquer les attaques existantes.
