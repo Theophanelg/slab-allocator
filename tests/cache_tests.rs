@@ -2,6 +2,8 @@
 fn test_cache(){
     let mut cache = slab_allocator::SlabCache::new(64,256);
     unsafe {
+        // SAFETY: allocate retourne un ptr valide ou none
+        // deallocate est appelé avec le bon pointeur
         let obj1 = cache.allocate().expect("should allocate");
         let obj2 = cache.allocate().expect("should allocate");
 

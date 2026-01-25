@@ -4,6 +4,8 @@ fn test_slab_allocate_and_free(){
     let ptr = buffer.as_mut_ptr();
 
     unsafe {
+        // SAFETY: ptr provient de as_mut_ptr qui est valide
+        // taille 256 bytes, object_size 64 qui fait 4 objets possibles
         let mut slab = slab_allocator::Slab::new(ptr,64,256);
         assert_eq!(slab.is_empty(), true);
         assert_eq!(slab.is_full(), false);
@@ -31,6 +33,8 @@ fn test_slab_full() {
     let mut buffer = vec![0u8; 256];
     let ptr = buffer.as_mut_ptr();
     unsafe{
+        // SAFETY: ptr provient de as_mut_ptr qui est valide
+        // taille 256 bytes, object_size 64 qui fait 4 objets possibles
         let mut slab = slab_allocator::Slab::new(ptr, 64, 256);
         let _obj1 = slab.allocate();
         let _obj2 = slab.allocate();

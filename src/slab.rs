@@ -62,6 +62,7 @@ impl Slab {
     /// ptr doit venir de ce slab
     pub unsafe fn deallocate(&mut self, ptr: *mut u8) {
         unsafe{
+            // SAFETY : ptr provient de ce slab
             let ptr_object = ptr as *mut *mut u8;
             *ptr_object = self.freelist;
             self.freelist = ptr;

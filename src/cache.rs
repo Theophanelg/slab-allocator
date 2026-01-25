@@ -39,6 +39,8 @@ impl SlabCache {
 
         use alloc::alloc::{alloc,Layout};
         let layout = Layout::from_size_align(self.slab_size, 8).unwrap();
+
+        // SAFETY: alloc retourne un pointeur aligné ou null
         let memory = unsafe {alloc(layout)};
 
         if memory.is_null(){
